@@ -1,5 +1,12 @@
 // ====== Rising Strips (with cycling text strips, evenly spaced) ======
 (() => {
+  
+  let isHorizontal = window.innerWidth <= 1200;
+
+  window.addEventListener("resize", () => {
+    isHorizontal = window.innerWidth <= 1200;
+  });
+
   const container = document.querySelector('.pattern-container');
   if (!container) return console.warn('[Strips] .pattern-container not found');
 
@@ -24,12 +31,12 @@
     
     textEnabled: true,
     textLines: [
-      'Where does design begin?',
-      'Where does creativity spark?',
-      'Where does experience connect?'
+      // 'Where does design begin?',
+      // 'Where does creativity spark?',
+      // 'Where does experience connect?'
     ],
     textSpeedPxPerSec: [150, 165],  // can be same or slightly different than non-text
-    textPadding: '8px 12px',
+    textPadding: '18px 24px',
     textFontSize: 'clamp(28px, 2.1vw, 36px)',
     textFontWeight: '400',
     textLetterSpacing: '0.2px',
@@ -124,9 +131,19 @@
     const H = container.clientHeight || container.offsetHeight;
     if (!W || !H) return;
 
-    const widthPct = rand(cfg.widthPct[0], cfg.widthPct[1]);
-    const widthPx = (widthPct / 100) * W;
-    const heightPx = randi(cfg.heightPx[0], cfg.heightPx[1]);
+    let widthPx, heightPx;
+
+    if (isHorizontal) {
+      // Tall vertical bars
+      widthPx = randi(cfg.heightPx[0], cfg.heightPx[1]); // thin
+      const heightPct = rand(cfg.widthPct[0], cfg.widthPct[1]);
+      heightPx = (heightPct / 100) * H; // tall
+    } else {
+      // Original horizontal bars
+      const widthPct = rand(cfg.widthPct[0], cfg.widthPct[1]);
+      widthPx = (widthPct / 100) * W;
+      heightPx = randi(cfg.heightPx[0], cfg.heightPx[1]);
+    }
     const speed = rand(cfg.speedPxPerSec[0], cfg.speedPxPerSec[1]);
     const z = randi(cfg.zIndex[0], cfg.zIndex[1]);
     const opacity = rand(cfg.opacity[0], cfg.opacity[1]);
@@ -147,7 +164,16 @@
       ? `0 0 8px ${hexToRGBA(color, 0.15)}`
       : 'none';
 
-    const startY = (initialY !== null) ? initialY : (H + randi(6, 40));
+    // let startY = s?.y || 0;
+    // let startX = s?.x || 0;
+
+    if (isHorizontal) {
+      startX = W + randi(6, 40);
+      startY = rand(0, Math.max(1, H - heightPx));
+    } else {
+      startY = (initialY !== null) ? initialY : (H + randi(6, 40));
+      startX = leftPx;
+    }
     el.style.transform = `translate3d(${leftPx}px, ${startY}px, 0)`;
 
     container.appendChild(el);
@@ -188,8 +214,17 @@
 
     el.textContent = text;
 
-    const startY = (initialY !== null) ? initialY : (H + randi(6, 40));
-    el.style.transform = `translate3d(${leftPx}px, ${startY}px, 0)`;
+    let startX, startY;
+
+    if (isHorizontal) {
+      startX = W + randi(6, 40); // spawn from right
+      startY = rand(0, Math.max(1, H - heightPx));
+    } else {
+      startX = leftPx;
+      startY = (initialY !== null) ? initialY : (H + randi(6, 40));
+    }
+
+    el.style.transform = `translate3d(${startX}px, ${startY}px, 0)`;
     container.appendChild(el);
 
     activeText.push({
@@ -224,9 +259,15 @@
     // non-text
     for (let i = active.length - 1; i >= 0; i--) {
       const s = active[i];
-      s.y -= s.speed * dt;
-      s.el.style.transform = `translate3d(${s.x}px, ${s.y}px, 0)`;
-      if (s.y + s.h < 0) recycle(i);
+      if (isHorizontal) {
+        s.x -= s.speed * dt;
+        s.el.style.transform = `translate3d(${s.x}px, ${s.y}px, 0)`;
+        if (s.x + s.w < 0) recycle(i);
+      } else {
+        s.y -= s.speed * dt;
+        s.el.style.transform = `translate3d(${s.x}px, ${s.y}px, 0)`;
+        if (s.y + s.h < 0) recycle(i);
+      }
     }
 
     // text
@@ -249,17 +290,35 @@
   let didInitialTextStagger = false;
 
   function initialStaggerFill() {
+    const W = container.clientWidth;
     const H = container.clientHeight || container.offsetHeight;
-    if (!H) return;
-    const target = cfg.visibleCount;
-    const step = H / target;
+    if (!W || !H) return;
 
-    for (let i = 0; i < target; i++) {
-      const laneCenter = H - i * step;
-      const jitter = rand(-step * 0.25, step * 0.25);
-      const y = clamp(laneCenter + jitter, -40, H + 40);
-      spawn(y);
+    const target = cfg.visibleCount;
+
+    if (isHorizontal) {
+      const step = W / target;
+
+      for (let i = 0; i < target; i++) {
+        const laneCenter = W - i * step;
+        const jitter = rand(-step * 0.25, step * 0.25);
+        const x = clamp(laneCenter + jitter, -60, W + 60);
+
+        spawn(null, x); // pass X instead of Y
+      }
+
+    } else {
+      const step = H / target;
+
+      for (let i = 0; i < target; i++) {
+        const laneCenter = H - i * step;
+        const jitter = rand(-step * 0.25, step * 0.25);
+        const y = clamp(laneCenter + jitter, -60, H + 60);
+
+        spawn(y);
+      }
     }
+
     didInitialStagger = true;
   }
 
@@ -351,11 +410,25 @@ const swiper = new Swiper('.my-vertical-swiper', {
 
 // ===================== SECTION TWO: STRIPES MARQUEE + PROJECT CARD (PAUSE ON HOVER) =====================
 (() => {
+  
+
+  function getResponsiveConfig() {
+    const isSmall = window.innerWidth <= 1200;
+
+    return {
+      STRIPE_PATTERN: isSmall ? [8, 6, 4, 3, 4, 6] : [10, 8, 6, 4, 6, 8],
+      STRIPE_GAP: isSmall ? 24 : 40,
+      PROJECT_CARD_WIDTH: isSmall ? 320 : 400,
+      ROW_HEIGHT: isSmall ? 200 : 250,
+    };
+  }
+
   // =========================
   // CONFIG
   // =========================
-  const STRIPE_PATTERN = [10, 8, 6, 4, 6, 8];
-  const STRIPE_GAP = 40;
+  let STRIPE_PATTERN;
+  let STRIPE_GAP;
+  let ROW_HEIGHT;
 
   const STRIPE_BASE_COLOR = "#222222";
   const STRIPE_ACCENT_COLOR = "#2273BC";
@@ -364,46 +437,106 @@ const swiper = new Swiper('.my-vertical-swiper', {
   const SPEED_ROW_1 = 80; // px/sec (moves RIGHT)
   const SPEED_ROW_2 = 80; // px/sec (moves LEFT)
 
-  const PROJECT_CARD_WIDTH = 400;
+  let PROJECT_CARD_WIDTH;
   const PROJECT_CARD_PROBABILITY = 0.10; // tweak
 
   // Your projects (Font Awesome classes as strings)
   const PROJECTS = [
     { title: "PEBLZ", image: "public/assets/PEBLZ.png", icon: "fa-light fa-arrow-up-right",
     images: [
-      "public/assets/projects/PEBLZ/1.png",
-      "public/assets/projects/PEBLZ/2.png",
-      "public/assets/projects/PEBLZ/3.png",
-      "public/assets/projects/PEBLZ/2.png",
-      "public/assets/projects/PEBLZ/3.png",
-      "public/assets/projects/PEBLZ/2.png",
-      "public/assets/projects/PEBLZ/3.png",
-      "public/assets/projects/PEBLZ/2.png",
-      "public/assets/projects/PEBLZ/3.png",
+      "public/assets/projects/PEBLZ/project-img-1.png",
+      "public/assets/projects/PEBLZ/project-img-2.png",
+      "public/assets/projects/PEBLZ/project-img-3.png",
+      "public/assets/projects/PEBLZ/project-img-4.png",
+      "public/assets/projects/PEBLZ/project-img-5.png",
+      "public/assets/projects/PEBLZ/project-img-6.png",
+      "public/assets/projects/PEBLZ/project-img-7.png",
+      "public/assets/projects/PEBLZ/project-img-8.png",
+      "public/assets/projects/PEBLZ/project-img-9.png",
+      "public/assets/projects/PEBLZ/project-img-10.png",
+      "public/assets/projects/PEBLZ/project-img-11.png",
     ],},
     { title: "Creator Dao", image: "public/assets/CRDAO.png", icon: "fa-light fa-arrow-up-right",
     images: [
-      "public/assets/projects/CRDAO/1.png",
-      "public/assets/projects/CRDAO/2.png",
-      "public/assets/projects/CRDAO/3.png",
-      "public/assets/projects/CRDAO/2.png",
-      "public/assets/projects/CRDAO/3.png",
-      "public/assets/projects/CRDAO/2.png",
-      "public/assets/projects/CRDAO/3.png",
-      "public/assets/projects/CRDAO/2.png",
-      "public/assets/projects/CRDAO/3.png",
+      "public/assets/projects/CRDAO/project-img-1.png",
+      "public/assets/projects/CRDAO/project-img-2.png",
+      "public/assets/projects/CRDAO/project-img-3.png",
+      "public/assets/projects/CRDAO/project-img-4.png",
+      "public/assets/projects/CRDAO/project-img-5.png",
+      "public/assets/projects/CRDAO/project-img-6.png",
+      "public/assets/projects/CRDAO/project-img-7.png",
+      "public/assets/projects/CRDAO/project-img-8.png",
+      "public/assets/projects/CRDAO/project-img-9.png",
+      "public/assets/projects/CRDAO/project-img-10.png",
+      "public/assets/projects/CRDAO/project-img-11.png",
     ], },
     { title: "MAUDE", image: "public/assets/MAUDE.png", icon: "fa-light fa-arrow-up-right",
     images: [
-      "public/assets/projects/MAUDE/1.png",
-      "public/assets/projects/MAUDE/2.png",
-      "public/assets/projects/MAUDE/3.png",
-      "public/assets/projects/MAUDE/2.png",
-      "public/assets/projects/MAUDE/3.png",
-      "public/assets/projects/MAUDE/2.png",
-      "public/assets/projects/MAUDE/3.png",
-      "public/assets/projects/MAUDE/2.png",
-      "public/assets/projects/MAUDE/3.png",
+      "public/assets/projects/MAUDE/project-img-1.png",
+      "public/assets/projects/MAUDE/project-img-2.png",
+      "public/assets/projects/MAUDE/project-img-3.png",
+      "public/assets/projects/MAUDE/project-img-4.png",
+      "public/assets/projects/MAUDE/project-img-5.png",
+      "public/assets/projects/MAUDE/project-img-6.png",
+      "public/assets/projects/MAUDE/project-img-7.png",
+      "public/assets/projects/MAUDE/project-img-8.png",
+      "public/assets/projects/MAUDE/project-img-9.png",
+      "public/assets/projects/MAUDE/project-img-10.png",
+      "public/assets/projects/MAUDE/project-img-11.png",
+    ], },
+    { title: "Cheeki", image: "public/assets/CHEEKI.png", icon: "fa-light fa-arrow-up-right",
+    images: [
+      "public/assets/projects/CHEEKI/project-img-1.png",
+      "public/assets/projects/CHEEKI/project-img-2.png",
+      "public/assets/projects/CHEEKI/project-img-3.png",
+      "public/assets/projects/CHEEKI/project-img-4.png",
+      "public/assets/projects/CHEEKI/project-img-5.png",
+      "public/assets/projects/CHEEKI/project-img-6.png",
+      "public/assets/projects/CHEEKI/project-img-7.png",
+      "public/assets/projects/CHEEKI/project-img-8.png",
+      "public/assets/projects/CHEEKI/project-img-9.png",
+      "public/assets/projects/CHEEKI/project-img-10.png",
+      "public/assets/projects/CHEEKI/project-img-11.png",
+    ], },
+    { title: "DataCrest", image: "public/assets/DATACREST.png", icon: "fa-light fa-arrow-up-right",
+    images: [
+      "public/assets/projects/DATACREST/project-img-1.png",
+      "public/assets/projects/DATACREST/project-img-2.png",
+      "public/assets/projects/DATACREST/project-img-3.png",
+      "public/assets/projects/DATACREST/project-img-4.png",
+      "public/assets/projects/DATACREST/project-img-5.png",
+      "public/assets/projects/DATACREST/project-img-6.png",
+      "public/assets/projects/DATACREST/project-img-7.png",
+      "public/assets/projects/DATACREST/project-img-8.png",
+      "public/assets/projects/DATACREST/project-img-9.png",
+      "public/assets/projects/DATACREST/project-img-10.png",
+      "public/assets/projects/DATACREST/project-img-11.png",
+    ], },
+    { title: "ACL", image: "public/assets/ACL.png", icon: "fa-light fa-arrow-up-right",
+    images: [
+      "public/assets/projects/ACL/project-img-1.png",
+      "public/assets/projects/ACL/project-img-2.png",
+      "public/assets/projects/ACL/project-img-3.png",
+      "public/assets/projects/ACL/project-img-4.png",
+      "public/assets/projects/ACL/project-img-5.png",
+      "public/assets/projects/ACL/project-img-6.png",
+      "public/assets/projects/ACL/project-img-7.png",
+      "public/assets/projects/ACL/project-img-8.png",
+      "public/assets/projects/ACL/project-img-9.png",
+    ], },
+    { title: "LOGO_FOLIO_1", image: "public/assets/LOGO_FOLIO_1.png", icon: "fa-light fa-arrow-up-right",
+    images: [
+      "public/assets/projects/LOGO_FOLIO_1/project-img-1.png",
+      "public/assets/projects/LOGO_FOLIO_1/project-img-2.png",
+      "public/assets/projects/LOGO_FOLIO_1/project-img-3.png",
+      "public/assets/projects/LOGO_FOLIO_1/project-img-4.png",
+      "public/assets/projects/LOGO_FOLIO_1/project-img-5.png",
+      "public/assets/projects/LOGO_FOLIO_1/project-img-6.png",
+      "public/assets/projects/LOGO_FOLIO_1/project-img-7.png",
+      "public/assets/projects/LOGO_FOLIO_1/project-img-8.png",
+      "public/assets/projects/LOGO_FOLIO_1/project-img-9.png",
+      "public/assets/projects/LOGO_FOLIO_1/project-img-10.png",
+      "public/assets/projects/LOGO_FOLIO_1/project-img-11.png",
     ], },
   ];
 
@@ -582,6 +715,12 @@ const swiper = new Swiper('.my-vertical-swiper', {
   // STRIPES SEQUENCE (build seqA then clone)
   // =========================
   function buildStripeSequence(sequenceEl, targetWidth) {
+    const projectOrder = [...PROJECTS]
+      .map((p, i) => ({ p, i }))
+      .sort(() => Math.random() - 0.5);
+
+    let projectCursor = 0;
+
     sequenceEl.innerHTML = "";
     sequenceEl.style.display = "inline-flex";
     sequenceEl.style.height = "100%";
@@ -598,24 +737,8 @@ const swiper = new Swiper('.my-vertical-swiper', {
     let lastWasCard = false;
 
     while (filled < targetWidth + 600) {
-      // Random card insertion
-      const canInsertCard = PROJECTS.length > 0 && !lastWasCard;
-      const insertCard = canInsertCard && Math.random() < PROJECT_CARD_PROBABILITY;
 
-      if (insertCard) {
-        const idx = Math.floor(Math.random() * PROJECTS.length);
-        const project = PROJECTS[idx];
-
-        const card = createProjectCard(project, idx);
-        sequenceEl.appendChild(card);
-
-        filled += PROJECT_CARD_WIDTH + STRIPE_GAP;
-        lastWasCard = true;
-        lastWasAccent = false;
-        continue;
-      }
-
-      // Stripe insertion
+      // Insert stripes first
       const w = STRIPE_PATTERN[i % STRIPE_PATTERN.length];
 
       const stripe = document.createElement("div");
@@ -626,13 +749,27 @@ const swiper = new Swiper('.my-vertical-swiper', {
       const isAccent = !lastWasAccent && Math.random() < ACCENT_PROBABILITY;
       stripe.style.backgroundColor = isAccent ? STRIPE_ACCENT_COLOR : STRIPE_BASE_COLOR;
 
-      lastWasAccent = isAccent;
-      lastWasCard = false;
-
       sequenceEl.appendChild(stripe);
 
       filled += w + STRIPE_GAP;
       i++;
+      lastWasAccent = isAccent;
+      lastWasCard = false;
+
+      // Random chance to insert project (if not all used)
+      if (
+        projectCursor < projectOrder.length &&
+        Math.random() < 0.15 &&   // controls spacing density
+        !lastWasCard
+      ) {
+        const { p, i: idx } = projectOrder[projectCursor++];
+
+        const card = createProjectCard(p, idx);
+        sequenceEl.appendChild(card);
+
+        filled += PROJECT_CARD_WIDTH + STRIPE_GAP;
+        lastWasCard = true;
+      }
     }
   }
 
@@ -642,9 +779,7 @@ const swiper = new Swiper('.my-vertical-swiper', {
   function ensureRowBasics(rowEl) {
     rowEl.style.position = rowEl.style.position || "relative";
     rowEl.style.overflow = "hidden";
-
-    // If your layout already gives height, remove this.
-    if (!rowEl.style.height) rowEl.style.height = "250px";
+    rowEl.style.height = `${ROW_HEIGHT}px`;
   }
 
   function createMarqueeForRow(rowEl, direction, speedPxPerSec) {
@@ -741,6 +876,12 @@ const swiper = new Swiper('.my-vertical-swiper', {
   }
 
   function init() {
+    const r = getResponsiveConfig();
+    STRIPE_PATTERN = r.STRIPE_PATTERN;
+    STRIPE_GAP = r.STRIPE_GAP;
+    PROJECT_CARD_WIDTH = r.PROJECT_CARD_WIDTH;
+    ROW_HEIGHT = r.ROW_HEIGHT;
+
     const row1 = document.querySelector(".row-1");
     const row2 = document.querySelector(".row-2");
 
