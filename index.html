@@ -38,6 +38,18 @@
 </head>
 <body>
 
+    <div class="cursor-circle">
+        <div class="cursor-dot"></div>
+
+        <svg viewBox="0 0 100 100">
+            <path class="cursor-path"
+            d="M50 5 
+                C70 5 95 30 95 50
+                C95 70 70 95 50 95
+                C30 95 5 70 5 50
+                C5 30 30 5 50 5 Z"/>
+        </svg>
+    </div>
 
     <video class="bg-video" autoplay muted loop playsinline preload="auto" style="opacity: .1;">
         <source src="public/assets/Studio-G4G-coming-soon-1.mp4" type="video/mp4">
@@ -45,11 +57,11 @@
     </video>
 
     <div class="navbar">
-        <a href="/" class="logo">studioG4G</a>
-        <a href="#" class="link">PROJECTS</a>
-        <a href="#" class="link">SERVICES</a>
-        <a href="#" class="link">STUDIO</a>
-        <a href="contact.html" class="link">CONTACT</a>
+        <a href="/" class="logo linked">studioG4G</a>
+        <a href="/projects.html" class="link linked">PROJECTS</a>
+        <!-- <a href="#" class="link linked">SERVICES</a> -->
+        <!-- <a href="#" class="link linked">STUDIO</a> -->
+        <a href="contact.html" class="link linked">CONTACT</a>
     </div>
 
     <div class="swiper my-vertical-swiper">
@@ -64,7 +76,7 @@
                         <i class="fa-light fa-arrow-down-left"></i>
                     </a>
 
-                    <a class="email-cta">CONTACT@STUDIO-G4G.COM</a>
+                    <a class="email-cta linked">CONTACT@STUDIO-G4G.COM</a>
                 </div>
             </section>
 
@@ -85,14 +97,14 @@
                     </div>
                     <div class="socials">
                         <div class="set-1">
-                            <div>[INSTAGRAM]</div>
-                            <div>[LINKEDIN]</div>
-                            <div>[X (TWITTER)]</div>
+                            <a class="linked" href="https://www.instagram.com/studio.g4g/">[INSTAGRAM]</a>
+                            <a class="linked" href="#">[LINKEDIN]</a>
+                            <a class="linked" href="#">[X (TWITTER)]</a>
                         </div>
                         <div class="set-2">
-                            <div>[BEHANCE]</div>
-                            <div>[PINTEREST]</div>
-                            <div>[DRIBBBLE]</div>
+                            <a class="linked" href="https://www.behance.net/geeksforgrowth">[BEHANCE]</a>
+                            <a class="linked" href="https://www.pinterest.com/G4GStudio/">[PINTEREST]</a>
+                            <a class="linked" href="https://dribbble.com/G4G">[DRIBBBLE]</a>
                         </div>
                     </div>
                     <div class="footer-btn">
@@ -100,9 +112,9 @@
                             <div>© Geeksforgrowth LLC — 2025</div>
                         </div>
                         <div class="pages">
-                            <div>WORK</div>
-                            <div>SERVICES</div>
-                            <div>CONTACT</div>
+                            <a class="linked" href="/projects.html">WORK</a>
+                            <!-- <a class="linked" href="#">SERVICES</a> -->
+                            <a class="linked" href="/contact.html">CONTACT</a>
                         </div>
                         <div class="archive">ARCHIVE</div>
                     </div>
@@ -131,5 +143,46 @@
 
 <script src="https://unpkg.com/swiper@11/swiper-bundle.min.js"></script>
 <script src="public/js/main.js"></script>
+
+<script>
+
+    let mouseX = 0;
+    let mouseY = 0;
+    let posX = 0;
+    let posY = 0;
+    
+    const cursor = document.querySelector(".cursor-circle");
+    const cards = document.querySelectorAll(".linked");
+
+    cards.forEach(card => {
+
+        card.addEventListener("mouseenter", () => {
+        cursor.classList.add("cursor-hover");
+        });
+
+        card.addEventListener("mouseleave", () => {
+        cursor.classList.remove("cursor-hover");
+        });
+
+    });
+
+    document.addEventListener("mousemove", e => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+    });
+
+    function animate(){
+        posX += (mouseX - posX) * 0.15;
+        posY += (mouseY - posY) * 0.15;
+
+        cursor.style.left = posX + "px";
+        cursor.style.top = posY + "px";
+
+        requestAnimationFrame(animate);
+    }
+
+    animate();
+
+</script>
 
 </html>

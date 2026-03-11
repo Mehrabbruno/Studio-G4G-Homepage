@@ -23,6 +23,84 @@
     --tc-gradient-1-r: linear-gradient(0deg, var(--tc-7) 0%, var(--tc-6) 100%);
 }
 
+.cursor-circle{
+    position: fixed;
+    width: 40px;
+    height: 40px;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%,-50%);
+    transition: width .25s, height .25s;
+    mix-blend-mode: difference;
+}
+
+.cursor-circle.alt{
+    mix-blend-mode: normal;
+}
+
+.cursor-dot{
+    position:absolute;
+    width:3px;
+    height:3px;
+    background:#fff;
+    border-radius:50%;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    mix-blend-mode:difference;
+    transition: width .45s ease, height .45s ease;
+}
+
+.cursor-circle svg{
+    width:100%;
+    height:100%;
+    transition: .25s;
+}
+
+.cursor-path{
+    fill: none;
+    stroke: #fff;
+    stroke-width: 2;
+    transition: .25s;
+}
+
+.cursor-circle.cursor-hover{
+    width:90px;
+    height:90px;
+}
+
+.cursor-circle.cursor-hover .cursor-dot{
+    width:2px;
+    height:2px;
+}
+
+.cursor-circle.cursor-hover .cursor-path{
+    animation: cursorWiggle 1.2s infinite ease-in-out;
+}
+
+@keyframes cursorWiggle{
+0%  { d:path("M50 5 C70 5 95 30 95 50 C95 70 70 95 50 95 C30 95 5 70 5 50 C5 30 30 5 50 5 Z"); }
+
+25% { d:path("M50 8 C75 3 97 35 92 52 C96 75 70 97 48 92 C25 96 5 68 8 48 C3 28 30 5 50 8 Z"); }
+
+50% { d:path("M52 6 C72 2 98 32 94 55 C90 78 65 95 48 92 C22 90 4 65 6 45 C10 25 32 6 52 6 Z"); }
+
+75% { d:path("M48 7 C68 4 94 28 95 50 C96 70 75 94 52 96 C28 94 7 70 6 50 C5 28 30 4 48 7 Z"); }
+
+100%{ d:path("M50 5 C70 5 95 30 95 50 C95 70 70 95 50 95 C30 95 5 70 5 50 C5 30 30 5 50 5 Z"); }
+}
+
+.cursor-circle.cursor-hover svg{
+    animation: cursorRotate 6s linear infinite;
+}
+@keyframes cursorRotate{
+    from{
+        transform: rotate(0deg);
+    }
+    to{
+        transform: rotate(360deg);
+    }
+}
 
 
 html, body{
@@ -33,7 +111,7 @@ html, body{
     padding: 0;
     margin: 0;
     box-sizing: border-box;
-    overflow: hidden;
+    cursor: none;
     background-color: var(--tc-1);
 }
 
@@ -50,6 +128,7 @@ html, body{
 a{
     text-decoration: none;
     color: inherit;
+    cursor: none;
 }
 
 .coming-soon-1{
@@ -161,7 +240,7 @@ a{
     bottom: 20px;
     left: 40px;
     color: var(--cl-2);
-    cursor: pointer;
+    /* cursor: pointer; */
     font-style: normal;
     text-decoration: none;
     /* transition: .2s; */
@@ -375,7 +454,8 @@ a{
     outline: none;
     border: 1px solid var(--tc-1);
     color: var(--tc-1);
-    cursor: pointer;
+    /* cursor: pointer; */
+    cursor: none;
     transition: .3s;
 }
 .contact-form .form .input-row{
@@ -458,6 +538,44 @@ a{
 }
 /* Contact Page End */
 
+
+
+/* Projects Page Start */
+
+.project-page{
+    height: 100%;
+    width: 100%;
+    padding-top: 300px;
+}
+.project-page .navbar{
+    position: absolute;
+}
+.projects-list-wrapper{
+    padding-inline: 40px;
+    padding-bottom: 200px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 120px 120px;
+    width: 100%;
+    box-sizing: border-box;
+}
+.project-card{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+.project-card img{
+    width: 100%;
+    height: auto;
+    /* cursor: pointer; */
+    margin-bottom: 30px;
+}
+.project-title{
+    font-size: 1.4rem;
+    color: var(--tc-8);
+}
+/* Projects Page End */
 
 
 

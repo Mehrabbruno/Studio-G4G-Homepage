@@ -645,7 +645,8 @@ const swiper = new Swiper('.my-vertical-swiper', {
     // card.style.borderRadius = "16px";
     card.style.overflow = "hidden";
     card.style.position = "relative";
-    card.style.cursor = "pointer";
+    // card.style.cursor = "pointer";
+    card.classList.add("linked")
     card.style.pointerEvents = "auto";
 
     card.style.backgroundImage = `url("${project.image}")`;
@@ -707,6 +708,17 @@ const swiper = new Swiper('.my-vertical-swiper', {
 
     iconWrap.appendChild(iEl);
     content.appendChild(iconWrap);
+
+    const cursor = document.querySelector(".cursor-circle");
+    card.addEventListener("mouseenter", () => {
+      cursor.classList.add("cursor-hover");
+      console.log('hey hey')
+    });
+
+    card.addEventListener("mouseleave", () => {
+      cursor.classList.remove("cursor-hover");
+      console.log('hey hey')
+    });
 
     return card;
   }
