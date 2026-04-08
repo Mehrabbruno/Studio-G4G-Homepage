@@ -37,20 +37,7 @@
 
 </head>
 <body>
-
-    <div class="cursor-circle">
-        <div class="cursor-dot"></div>
-
-        <svg viewBox="0 0 100 100">
-            <path class="cursor-path"
-            d="M50 5 
-                C70 5 95 30 95 50
-                C95 70 70 95 50 95
-                C30 95 5 70 5 50
-                C5 30 30 5 50 5 Z"/>
-        </svg>
-    </div>
-
+    
     <video class="bg-video" autoplay muted loop playsinline preload="auto" style="opacity: .1;">
         <source src="public/assets/Studio-G4G-coming-soon-1.mp4" type="video/mp4">
         Your browser does not support HTML5 video.
@@ -58,7 +45,7 @@
 
     <div class="navbar">
         <a href="/" class="logo linked">studioG4G</a>
-        <a href="/projects.html" class="link linked">PROJECTS</a>
+        <a href="/project-listing.html" class="link linked">PROJECTS</a>
         <!-- <a href="#" class="link linked">SERVICES</a> -->
         <!-- <a href="#" class="link linked">STUDIO</a> -->
         <a href="contact.html" class="link linked">CONTACT</a>
@@ -68,7 +55,17 @@
         <div class="swiper-wrapper">
             <section class="swiper-slide">
                 <div class="above-the-fold">
-                    <div class="pattern-container">
+
+                    <div class="hero-line-nav">
+                        <div class="hero-line-segment"><div class="hero-line-progress"></div></div>
+                        <div class="hero-line-segment"><div class="hero-line-progress"></div></div>
+                        <div class="hero-line-segment"><div class="hero-line-progress"></div></div>
+                        <div class="hero-line-segment"><div class="hero-line-progress"></div></div>
+                        <div class="hero-line-segment"><div class="hero-line-progress"></div></div>
+                    </div>
+                    <div class="hero-bg-slider">
+                        <div class="hero-bg-image hero-bg-image-1"></div>
+                        <div class="hero-bg-image hero-bg-image-2"></div>
                     </div>
 
                     <a href="#" class="about">
@@ -143,46 +140,5 @@
 
 <script src="https://unpkg.com/swiper@11/swiper-bundle.min.js"></script>
 <script src="public/js/main.js"></script>
-
-<script>
-
-    let mouseX = 0;
-    let mouseY = 0;
-    let posX = 0;
-    let posY = 0;
-    
-    const cursor = document.querySelector(".cursor-circle");
-    const cards = document.querySelectorAll(".linked");
-
-    cards.forEach(card => {
-
-        card.addEventListener("mouseenter", () => {
-        cursor.classList.add("cursor-hover");
-        });
-
-        card.addEventListener("mouseleave", () => {
-        cursor.classList.remove("cursor-hover");
-        });
-
-    });
-
-    document.addEventListener("mousemove", e => {
-        mouseX = e.clientX;
-        mouseY = e.clientY;
-    });
-
-    function animate(){
-        posX += (mouseX - posX) * 0.15;
-        posY += (mouseY - posY) * 0.15;
-
-        cursor.style.left = posX + "px";
-        cursor.style.top = posY + "px";
-
-        requestAnimationFrame(animate);
-    }
-
-    animate();
-
-</script>
 
 </html>

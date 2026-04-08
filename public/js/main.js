@@ -1,447 +1,4 @@
-// ====== Rising Strips (with cycling text strips, evenly spaced) ======
-(() => {
-  
-  let isHorizontal = window.innerWidth <= 1200;
-
-  window.addEventListener("resize", () => {
-    isHorizontal = window.innerWidth <= 1200;
-  });
-
-  const container = document.querySelector('.pattern-container');
-  if (!container) return console.warn('[Strips] .pattern-container not found');
-
-  // Ensure container works as a viewport
-  if (getComputedStyle(container).position === 'static') container.style.position = 'relative';
-  container.style.overflow = 'hidden';
-  container.style.willChange = 'transform';
-
-  // ---- Config ----
-  const cfg = {
-    palette: ['#2273BC', '#000000', '#929292'],
-    visibleCount: 36,
-    widthPct: [30, 60],        // %
-    heightPx: [30, 60],        // px
-    speedPxPerSec: [160, 180],  // rising speed
-    opacity: [0.6, 1],
-    zIndex: [1, 9],            // always < 10
-    spawnAttemptMs: 120,       // how often we try to fill up to visibleCount
-    stripedChance: 0.30,       // 20%
-
-    // TEXT STRIPS
-    
-    textEnabled: true,
-    textLines: [
-      // 'Where does design begin?',
-      // 'Where does creativity spark?',
-      // 'Where does experience connect?'
-    ],
-    textSpeedPxPerSec: [150, 165],  // can be same or slightly different than non-text
-    textPadding: '18px 24px',
-    textFontSize: 'clamp(28px, 2.1vw, 36px)',
-    textFontWeight: '400',
-    textLetterSpacing: '0.2px',
-    textBackground: '#000000',     // black
-    textColor: '#2273BC',          // blue text
-    textWidthPct: [40, 70],        // text strips width range (use same “spread” policy)
-    textOpacity: [1, 1.0],      // text should be crisp
-  };
-
-  // Respect reduced motion
-  const prefersReduced = window.matchMedia &&
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (prefersReduced) {
-    cfg.visibleCount = Math.min(8, cfg.visibleCount);
-    cfg.speedPxPerSec = [25, 70];
-    cfg.textSpeedPxPerSec = [25, 70];
-  }
-
-  // ---- Helpers ----
-  const rand = (a, b) => a + Math.random() * (b - a);
-  const randi = (a, b) => Math.floor(rand(a, b + 1));
-  const pick = (arr) => arr[(Math.random() * arr.length) | 0];
-  const clamp = (v, mn, mx) => Math.max(mn, Math.min(mx, v));
-
-  function hexToRGBA(hex, a=1) {
-    const h = hex.replace('#','');
-    const r = parseInt(h.substring(0,2),16);
-    const g = parseInt(h.substring(2,4),16);
-    const b = parseInt(h.substring(4,6),16);
-    return `rgba(${r}, ${g}, ${b}, ${a})`;
-  }
-
-  function makeBackground(baseHex) {
-    if (Math.random() < cfg.stripedChance) {
-      const c1 = hexToRGBA(baseHex, 0.95);
-      const c2 = hexToRGBA(baseHex, 0.85);
-      const cLine = hexToRGBA('#E8D8B6', 1); // your warmer paper-tone highlight
-      const band = 5;
-      return `
-        repeating-linear-gradient(
-          180deg,
-          ${cLine} 0px,
-          ${cLine} 2px,
-          transparent 1px,
-          transparent ${band}px
-        ),
-        linear-gradient(${c1}, ${c2})
-      `;
-    }
-    return hexToRGBA(baseHex, 1);
-  }
-
-  // ---- Strip management ----
-  const active = [];       // non-text strips
-  const pool = [];         // pooled non-text nodes
-
-  const activeText = [];   // text strips (exactly textLines.length alive)
-  const poolText = [];     // pooled text nodes
-  let textCursor = 0;      // which line spawns next (order preserved)
-
-  function baseStripEl() {
-    const el = document.createElement('div');
-    el.className = 'strip';
-    el.style.position = 'absolute';
-    el.style.left = '0';
-    el.style.top = '0';
-    el.style.willChange = 'transform, opacity';
-    el.style.pointerEvents = 'none';
-    return el;
-  }
-
-  function createStrip() {
-    return pool.pop() || baseStripEl();
-  }
-  function createTextStrip() {
-    const el = poolText.pop() || baseStripEl();
-    el.className = 'strip text-strip';
-    el.style.display = 'flex';
-    el.style.alignItems = 'center';
-    el.style.justifyContent = 'center';
-    el.style.whiteSpace = 'nowrap';
-    el.style.overflow = 'hidden';
-    el.style.textOverflow = 'ellipsis';
-    el.style.fontWeight = cfg.textFontWeight;
-    el.style.letterSpacing = cfg.textLetterSpacing;
-    return el;
-  }
-
-  // ---------- SPAWNERS ----------
-  function spawn(initialY = null) {
-    const W = container.clientWidth;
-    const H = container.clientHeight || container.offsetHeight;
-    if (!W || !H) return;
-
-    let widthPx, heightPx;
-
-    if (isHorizontal) {
-      // Tall vertical bars
-      widthPx = randi(cfg.heightPx[0], cfg.heightPx[1]); // thin
-      const heightPct = rand(cfg.widthPct[0], cfg.widthPct[1]);
-      heightPx = (heightPct / 100) * H; // tall
-    } else {
-      // Original horizontal bars
-      const widthPct = rand(cfg.widthPct[0], cfg.widthPct[1]);
-      widthPx = (widthPct / 100) * W;
-      heightPx = randi(cfg.heightPx[0], cfg.heightPx[1]);
-    }
-    const speed = rand(cfg.speedPxPerSec[0], cfg.speedPxPerSec[1]);
-    const z = randi(cfg.zIndex[0], cfg.zIndex[1]);
-    const opacity = rand(cfg.opacity[0], cfg.opacity[1]);
-    const color = pick(cfg.palette);
-    const bg = makeBackground(color);
-
-    const leftPx = rand(0, Math.max(1, W - widthPx));
-
-    const el = createStrip();
-    el.style.zIndex = String(z);
-    el.style.width = `${widthPx}px`;
-    el.style.height = `${heightPx}px`;
-    el.style.opacity = opacity.toFixed(3);
-    el.style.background = bg;
-    el.style.backgroundBlendMode = 'overlay';
-    el.style.backgroundSize = 'auto';
-    el.style.boxShadow = color.toUpperCase() !== '#929292'
-      ? `0 0 8px ${hexToRGBA(color, 0.15)}`
-      : 'none';
-
-    // let startY = s?.y || 0;
-    // let startX = s?.x || 0;
-
-    if (isHorizontal) {
-      startX = W + randi(6, 40);
-      startY = rand(0, Math.max(1, H - heightPx));
-    } else {
-      startY = (initialY !== null) ? initialY : (H + randi(6, 40));
-      startX = leftPx;
-    }
-    el.style.transform = `translate3d(${leftPx}px, ${startY}px, 0)`;
-
-    container.appendChild(el);
-
-    active.push({
-      el, x: leftPx, y: startY, w: widthPx, h: heightPx, speed
-    });
-  }
-
-  function spawnText(initialY = null) {
-    const W = container.clientWidth;
-    const H = container.clientHeight || container.offsetHeight;
-    if (!W || !H) return;
-
-    const text = cfg.textLines[textCursor];
-    textCursor = (textCursor + 1) % cfg.textLines.length;
-
-    const widthPct = rand(cfg.textWidthPct[0], cfg.textWidthPct[1]);
-    const widthPx = (widthPct / 100) * W;
-    const heightPx = randi(cfg.heightPx[0], cfg.heightPx[1]); // same height range for consistency
-    const speed = rand(cfg.textSpeedPxPerSec[0], cfg.textSpeedPxPerSec[1]);
-    const z = randi(cfg.zIndex[0], cfg.zIndex[1]);
-    const opacity = rand(cfg.textOpacity[0], cfg.textOpacity[1]);
-
-    const leftPx = rand(0, Math.max(1, W - widthPx));
-
-    const el = createTextStrip();
-    el.style.zIndex = '10'; // always on top
-    el.style.width = 'max-content'; // fit to text width
-    el.style.height = `${heightPx}px`;
-    el.style.opacity = opacity.toFixed(3);
-    el.style.background = cfg.textBackground;
-    el.style.color = cfg.textColor;
-    el.style.padding = cfg.textPadding;
-    el.style.fontSize = cfg.textFontSize;
-    el.style.backgroundBlendMode = ''; // not needed
-    el.style.boxShadow = `0 0 8px ${hexToRGBA('#000000', 0.22)}`;
-
-    el.textContent = text;
-
-    let startX, startY;
-
-    if (isHorizontal) {
-      startX = W + randi(6, 40); // spawn from right
-      startY = rand(0, Math.max(1, H - heightPx));
-    } else {
-      startX = leftPx;
-      startY = (initialY !== null) ? initialY : (H + randi(6, 40));
-    }
-
-    el.style.transform = `translate3d(${startX}px, ${startY}px, 0)`;
-    container.appendChild(el);
-
-    activeText.push({
-      el, x: leftPx, y: startY, w: widthPx, h: heightPx, speed
-    });
-  }
-
-  // ---------- RECYCLE ----------
-  function recycle(i) {
-    const item = active[i];
-    if (!item) return;
-    const el = item.el;
-    if (el.parentNode === container) container.removeChild(el);
-    pool.push(el);
-    active.splice(i, 1);
-  }
-  function recycleText(i) {
-    const item = activeText[i];
-    if (!item) return;
-    const el = item.el;
-    if (el.parentNode === container) container.removeChild(el);
-    poolText.push(el);
-    activeText.splice(i, 1);
-  }
-
-  // ---------- MAIN LOOP ----------
-  let last = performance.now();
-  function tick(t) {
-    const dt = Math.min(64, t - last) / 1000;
-    last = t;
-
-    // non-text
-    for (let i = active.length - 1; i >= 0; i--) {
-      const s = active[i];
-      if (isHorizontal) {
-        s.x -= s.speed * dt;
-        s.el.style.transform = `translate3d(${s.x}px, ${s.y}px, 0)`;
-        if (s.x + s.w < 0) recycle(i);
-      } else {
-        s.y -= s.speed * dt;
-        s.el.style.transform = `translate3d(${s.x}px, ${s.y}px, 0)`;
-        if (s.y + s.h < 0) recycle(i);
-      }
-    }
-
-    // text
-    for (let i = activeText.length - 1; i >= 0; i--) {
-      const s = activeText[i];
-      s.y -= s.speed * dt;
-      s.el.style.transform = `translate3d(${s.x}px, ${s.y}px, 0)`;
-      if (s.y + s.h < 0) {
-        recycleText(i);
-        // immediately schedule next text line (order preserved)
-        spawnText(); // spawns from bottom with the next line in sequence
-      }
-    }
-
-    requestAnimationFrame(tick);
-  }
-
-  // ---------- FILLERS ----------
-  let didInitialStagger = false;
-  let didInitialTextStagger = false;
-
-  function initialStaggerFill() {
-    const W = container.clientWidth;
-    const H = container.clientHeight || container.offsetHeight;
-    if (!W || !H) return;
-
-    const target = cfg.visibleCount;
-
-    if (isHorizontal) {
-      const step = W / target;
-
-      for (let i = 0; i < target; i++) {
-        const laneCenter = W - i * step;
-        const jitter = rand(-step * 0.25, step * 0.25);
-        const x = clamp(laneCenter + jitter, -60, W + 60);
-
-        spawn(null, x); // pass X instead of Y
-      }
-
-    } else {
-      const step = H / target;
-
-      for (let i = 0; i < target; i++) {
-        const laneCenter = H - i * step;
-        const jitter = rand(-step * 0.25, step * 0.25);
-        const y = clamp(laneCenter + jitter, -60, H + 60);
-
-        spawn(y);
-      }
-    }
-
-    didInitialStagger = true;
-  }
-
-  function initialTextStaggerFill() {
-    if (!cfg.textEnabled || !cfg.textLines.length) { didInitialTextStagger = true; return; }
-    const H = container.clientHeight || container.offsetHeight;
-    if (!H) return;
-
-    const N = cfg.textLines.length;
-    const step = H / (N + 1); // even spacing across height
-    // Reset cursor to ensure order starts from first line
-    textCursor = 0;
-    for (let i = 0; i < N; i++) {
-      const laneY = H - (i + 1) * step;
-      const jitter = rand(-step * 0.18, step * 0.18);
-      const y = clamp(laneY + jitter, -40, H + 40);
-      spawnText(y); // will take lines in order due to textCursor
-    }
-    didInitialTextStagger = true;
-  }
-
-  function tryFill() {
-    if (!document.body.contains(container)) return;
-
-    if (!didInitialStagger) initialStaggerFill();
-    if (cfg.textEnabled && !didInitialTextStagger) initialTextStaggerFill();
-
-    // top up non-text to target
-    const deficit = cfg.visibleCount - active.length;
-    if (deficit > 0) for (let i = 0; i < deficit; i++) spawn();
-
-    // ensure exactly one live text strip per text line
-    if (cfg.textEnabled) {
-      const wanted = cfg.textLines.length;
-      const have = activeText.length;
-      if (have < wanted) {
-        for (let i = 0; i < wanted - have; i++) spawnText();
-      } else if (have > wanted) {
-        // trim extras if text lines array was reduced at runtime
-        for (let i = 0; i < have - wanted; i++) recycleText(activeText.length - 1 - i);
-      }
-    }
-  }
-
-  const spawnTimer = setInterval(tryFill, cfg.spawnAttemptMs);
-
-  // Handle resize (keep simple; existing strips continue gracefully)
-  let resizeTO = null;
-  window.addEventListener('resize', () => {
-    clearTimeout(resizeTO);
-    resizeTO = setTimeout(() => {
-      tryFill();
-    }, 120);
-  });
-
-  // Kickoff
-  tryFill();
-  requestAnimationFrame(tick);
-})();
-
-
-// Swiper vertical fullpage with wheel/touch, no arrows/pagination
-const swiper = new Swiper('.my-vertical-swiper', {
-  direction: 'vertical',
-  slidesPerView: 1,
-  speed: 700,
-  allowTouchMove: true,         // enable touch/trackpad
-  simulateTouch: true,
-  threshold: 8,                 // minimum px swipe
-  longSwipesMs: 100,
-  resistanceRatio: 0.85,
-
-  // Mouse/trackpad scroll
-  mousewheel: {
-    forceToAxis: true,          // vertical wheel → vertical slides
-    releaseOnEdges: true,       // allow native bounce at ends
-    sensitivity: 1.2
-  },
-
-  // Disable extras you don’t want
-  keyboard: { enabled: false },
-  pagination: { el: null },
-  navigation: { enabled: false },
-
-  // Optional: snap only when user stops (off = normal snap)
-  // freeMode: { enabled: false },
-});
-
-
-// ===================== SECTION TWO: STRIPES MARQUEE + PROJECT CARD (PAUSE ON HOVER) =====================
-(() => {
-  
-
-  function getResponsiveConfig() {
-    const isSmall = window.innerWidth <= 1200;
-
-    return {
-      STRIPE_PATTERN: isSmall ? [8, 6, 4, 3, 4, 6] : [10, 8, 6, 4, 6, 8],
-      STRIPE_GAP: isSmall ? 24 : 40,
-      PROJECT_CARD_WIDTH: isSmall ? 320 : 400,
-      ROW_HEIGHT: isSmall ? 200 : 250,
-    };
-  }
-
-  // =========================
-  // CONFIG
-  // =========================
-  let STRIPE_PATTERN;
-  let STRIPE_GAP;
-  let ROW_HEIGHT;
-
-  const STRIPE_BASE_COLOR = "#222222";
-  const STRIPE_ACCENT_COLOR = "#2273BC";
-  const ACCENT_PROBABILITY = 0.18; // accent stripe chance
-
-  const SPEED_ROW_1 = 80; // px/sec (moves RIGHT)
-  const SPEED_ROW_2 = 80; // px/sec (moves LEFT)
-
-  let PROJECT_CARD_WIDTH;
-  const PROJECT_CARD_PROBABILITY = 0.10; // tweak
-
-  // Your projects (Font Awesome classes as strings)
-  const PROJECTS = [
+const PROJECTS = [
     { title: "PEBLZ", image: "public/assets/PEBLZ.png", icon: "fa-light fa-arrow-up-right",
     images: [
       "public/assets/projects/PEBLZ/project-img-1.png",
@@ -539,6 +96,244 @@ const swiper = new Swiper('.my-vertical-swiper', {
       "public/assets/projects/LOGO_FOLIO_1/project-img-11.png",
     ], },
   ];
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  const segments = document.querySelectorAll(".hero-line-progress");
+  const heroBg1 = document.querySelector(".hero-bg-image-1");
+  const heroBg2 = document.querySelector(".hero-bg-image-2");
+  if (!segments.length || !heroBg1 || !heroBg2) return;
+
+  let currentProject = 0;
+  let currentImage = 0;
+
+  const lineDuration = 12500;
+  const imageDuration = 2500;
+
+  let imageLoop = null;
+
+  let activeLayer = 0;
+
+  function showHeroImage(src) {
+    const incomingLayer = activeLayer === 0 ? heroBg2 : heroBg1;
+    const outgoingLayer = activeLayer === 0 ? heroBg1 : heroBg2;
+
+    incomingLayer.style.backgroundImage = `url("${src}")`;
+    incomingLayer.classList.add("is-visible");
+    outgoingLayer.classList.remove("is-visible");
+
+    activeLayer = activeLayer === 0 ? 1 : 0;
+  }
+
+  function startImageLoop(projectIndex) {
+    clearInterval(imageLoop);
+
+    const project = PROJECTS[projectIndex];
+    if (!project || !project.images || !project.images.length) return;
+
+    currentImage = 0;
+
+    // fade into first image of next project
+    showHeroImage(project.images[currentImage]);
+
+    imageLoop = setInterval(() => {
+      currentImage = (currentImage + 1) % project.images.length;
+      showHeroImage(project.images[currentImage]);
+    }, imageDuration);
+  }
+
+  function runNext() {
+    if (currentProject >= segments.length) {
+      currentProject = 0;
+      segments.forEach(segment => {
+        segment.style.transition = "none";
+        segment.style.width = "0%";
+      });
+    }
+
+    const active = segments[currentProject];
+
+    active.style.transition = "none";
+    active.style.width = "0%";
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        startImageLoop(currentProject);
+
+        active.style.transition = `width ${lineDuration}ms linear`;
+        active.style.width = "100%";
+      });
+    });
+
+    setTimeout(() => {
+      currentProject++;
+      runNext();
+    }, lineDuration);
+  }
+
+  runNext();
+});
+
+
+// Swiper vertical fullpage with wheel/touch, no arrows/pagination
+const swiper = new Swiper('.my-vertical-swiper', {
+  direction: 'vertical',
+  slidesPerView: 1,
+  speed: 700,
+  allowTouchMove: true,         // enable touch/trackpad
+  simulateTouch: true,
+  threshold: 8,                 // minimum px swipe
+  longSwipesMs: 100,
+  resistanceRatio: 0.85,
+
+  // Mouse/trackpad scroll
+  mousewheel: {
+    forceToAxis: true,          // vertical wheel → vertical slides
+    releaseOnEdges: true,       // allow native bounce at ends
+    sensitivity: 1.2
+  },
+
+  // Disable extras you don’t want
+  keyboard: { enabled: false },
+  pagination: { el: null },
+  navigation: { enabled: false },
+
+  // Optional: snap only when user stops (off = normal snap)
+  // freeMode: { enabled: false },
+});
+
+
+// ===================== SECTION TWO: STRIPES MARQUEE + PROJECT CARD (PAUSE ON HOVER) =====================
+(() => {
+  
+
+  function getResponsiveConfig() {
+    const isSmall = window.innerWidth <= 1200;
+
+    return {
+      STRIPE_PATTERN: isSmall ? [8, 6, 4, 3, 4, 6] : [10, 8, 6, 4, 6, 8],
+      STRIPE_GAP: isSmall ? 24 : 40,
+      PROJECT_CARD_WIDTH: isSmall ? 320 : 400,
+      ROW_HEIGHT: isSmall ? 200 : 250,
+    };
+  }
+
+  // =========================
+  // CONFIG
+  // =========================
+  let STRIPE_PATTERN;
+  let STRIPE_GAP;
+  let ROW_HEIGHT;
+
+  const STRIPE_BASE_COLOR = "#222222";
+  const STRIPE_ACCENT_COLOR = "#2273BC";
+  const ACCENT_PROBABILITY = 0.18; // accent stripe chance
+
+  const SPEED_ROW_1 = 80; // px/sec (moves RIGHT)
+  const SPEED_ROW_2 = 80; // px/sec (moves LEFT)
+
+  let PROJECT_CARD_WIDTH;
+  const PROJECT_CARD_PROBABILITY = 0.10; // tweak
+
+  // Your projects (Font Awesome classes as strings)
+  // const PROJECTS = [
+  //   { title: "PEBLZ", image: "public/assets/PEBLZ.png", icon: "fa-light fa-arrow-up-right",
+  //   images: [
+  //     "public/assets/projects/PEBLZ/project-img-1.png",
+  //     "public/assets/projects/PEBLZ/project-img-2.png",
+  //     "public/assets/projects/PEBLZ/project-img-3.png",
+  //     "public/assets/projects/PEBLZ/project-img-4.png",
+  //     "public/assets/projects/PEBLZ/project-img-5.png",
+  //     "public/assets/projects/PEBLZ/project-img-6.png",
+  //     "public/assets/projects/PEBLZ/project-img-7.png",
+  //     "public/assets/projects/PEBLZ/project-img-8.png",
+  //     "public/assets/projects/PEBLZ/project-img-9.png",
+  //     "public/assets/projects/PEBLZ/project-img-10.png",
+  //     "public/assets/projects/PEBLZ/project-img-11.png",
+  //   ],},
+  //   { title: "Creator Dao", image: "public/assets/CRDAO.png", icon: "fa-light fa-arrow-up-right",
+  //   images: [
+  //     "public/assets/projects/CRDAO/project-img-1.png",
+  //     "public/assets/projects/CRDAO/project-img-2.png",
+  //     "public/assets/projects/CRDAO/project-img-3.png",
+  //     "public/assets/projects/CRDAO/project-img-4.png",
+  //     "public/assets/projects/CRDAO/project-img-5.png",
+  //     "public/assets/projects/CRDAO/project-img-6.png",
+  //     "public/assets/projects/CRDAO/project-img-7.png",
+  //     "public/assets/projects/CRDAO/project-img-8.png",
+  //     "public/assets/projects/CRDAO/project-img-9.png",
+  //     "public/assets/projects/CRDAO/project-img-10.png",
+  //     "public/assets/projects/CRDAO/project-img-11.png",
+  //   ], },
+  //   { title: "MAUDE", image: "public/assets/MAUDE.png", icon: "fa-light fa-arrow-up-right",
+  //   images: [
+  //     "public/assets/projects/MAUDE/project-img-1.png",
+  //     "public/assets/projects/MAUDE/project-img-2.png",
+  //     "public/assets/projects/MAUDE/project-img-3.png",
+  //     "public/assets/projects/MAUDE/project-img-4.png",
+  //     "public/assets/projects/MAUDE/project-img-5.png",
+  //     "public/assets/projects/MAUDE/project-img-6.png",
+  //     "public/assets/projects/MAUDE/project-img-7.png",
+  //     "public/assets/projects/MAUDE/project-img-8.png",
+  //     "public/assets/projects/MAUDE/project-img-9.png",
+  //     "public/assets/projects/MAUDE/project-img-10.png",
+  //     "public/assets/projects/MAUDE/project-img-11.png",
+  //   ], },
+  //   { title: "Cheeki", image: "public/assets/CHEEKI.png", icon: "fa-light fa-arrow-up-right",
+  //   images: [
+  //     "public/assets/projects/CHEEKI/project-img-1.png",
+  //     "public/assets/projects/CHEEKI/project-img-2.png",
+  //     "public/assets/projects/CHEEKI/project-img-3.png",
+  //     "public/assets/projects/CHEEKI/project-img-4.png",
+  //     "public/assets/projects/CHEEKI/project-img-5.png",
+  //     "public/assets/projects/CHEEKI/project-img-6.png",
+  //     "public/assets/projects/CHEEKI/project-img-7.png",
+  //     "public/assets/projects/CHEEKI/project-img-8.png",
+  //     "public/assets/projects/CHEEKI/project-img-9.png",
+  //     "public/assets/projects/CHEEKI/project-img-10.png",
+  //     "public/assets/projects/CHEEKI/project-img-11.png",
+  //   ], },
+  //   { title: "DataCrest", image: "public/assets/DATACREST.png", icon: "fa-light fa-arrow-up-right",
+  //   images: [
+  //     "public/assets/projects/DATACREST/project-img-1.png",
+  //     "public/assets/projects/DATACREST/project-img-2.png",
+  //     "public/assets/projects/DATACREST/project-img-3.png",
+  //     "public/assets/projects/DATACREST/project-img-4.png",
+  //     "public/assets/projects/DATACREST/project-img-5.png",
+  //     "public/assets/projects/DATACREST/project-img-6.png",
+  //     "public/assets/projects/DATACREST/project-img-7.png",
+  //     "public/assets/projects/DATACREST/project-img-8.png",
+  //     "public/assets/projects/DATACREST/project-img-9.png",
+  //     "public/assets/projects/DATACREST/project-img-10.png",
+  //     "public/assets/projects/DATACREST/project-img-11.png",
+  //   ], },
+  //   { title: "ACL", image: "public/assets/ACL.png", icon: "fa-light fa-arrow-up-right",
+  //   images: [
+  //     "public/assets/projects/ACL/project-img-1.png",
+  //     "public/assets/projects/ACL/project-img-2.png",
+  //     "public/assets/projects/ACL/project-img-3.png",
+  //     "public/assets/projects/ACL/project-img-4.png",
+  //     "public/assets/projects/ACL/project-img-5.png",
+  //     "public/assets/projects/ACL/project-img-6.png",
+  //     "public/assets/projects/ACL/project-img-7.png",
+  //     "public/assets/projects/ACL/project-img-8.png",
+  //     "public/assets/projects/ACL/project-img-9.png",
+  //   ], },
+  //   { title: "LOGO_FOLIO_1", image: "public/assets/LOGO_FOLIO_1.png", icon: "fa-light fa-arrow-up-right",
+  //   images: [
+  //     "public/assets/projects/LOGO_FOLIO_1/project-img-1.png",
+  //     "public/assets/projects/LOGO_FOLIO_1/project-img-2.png",
+  //     "public/assets/projects/LOGO_FOLIO_1/project-img-3.png",
+  //     "public/assets/projects/LOGO_FOLIO_1/project-img-4.png",
+  //     "public/assets/projects/LOGO_FOLIO_1/project-img-5.png",
+  //     "public/assets/projects/LOGO_FOLIO_1/project-img-6.png",
+  //     "public/assets/projects/LOGO_FOLIO_1/project-img-7.png",
+  //     "public/assets/projects/LOGO_FOLIO_1/project-img-8.png",
+  //     "public/assets/projects/LOGO_FOLIO_1/project-img-9.png",
+  //     "public/assets/projects/LOGO_FOLIO_1/project-img-10.png",
+  //     "public/assets/projects/LOGO_FOLIO_1/project-img-11.png",
+  //   ], },
+  // ];
 
   // =========================
   // STATE
@@ -712,12 +507,10 @@ const swiper = new Swiper('.my-vertical-swiper', {
     const cursor = document.querySelector(".cursor-circle");
     card.addEventListener("mouseenter", () => {
       cursor.classList.add("cursor-hover");
-      console.log('hey hey')
     });
 
     card.addEventListener("mouseleave", () => {
       cursor.classList.remove("cursor-hover");
-      console.log('hey hey')
     });
 
     return card;
@@ -974,6 +767,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     viewport.style.height = "100%";
     viewport.style.overflow = "hidden";
     viewport.style.position = "relative";
+    
 
     const track = document.createElement("div");
     track.style.position = "absolute";
@@ -985,6 +779,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     viewport.appendChild(track);
     mount.appendChild(viewport);
+    mount.addEventListener("mouseenter", () => {
+      paused = true;
+    });
+
+    mount.addEventListener("mouseleave", () => {
+      paused = false;
+    });
 
     function createMapTile() {
       // Tile wrapper (NO overflow hidden — we don't want tile clipping)
@@ -994,7 +795,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       tile.style.left = "0";
       tile.style.height = "100%";
       tile.style.willChange = "transform";
-      tile.style.pointerEvents = "none";
+      tile.style.pointerEvents = "auto";
 
       // Inner layer: fixed to circle size, then scaled
       const inner = document.createElement("div");
@@ -1007,6 +808,13 @@ document.addEventListener("DOMContentLoaded", async () => {
       inner.innerHTML = svgText;
 
       const svg = inner.querySelector("svg");
+      svg.addEventListener("click", (e) => {
+      const country = e.target.id;
+
+      if (country === "US") console.log("Todd Hogan");
+      if (country === "PK") console.log("Victor, Peter, Ikenna, Ada");
+      if (country === "NG") console.log("Ahsan, Ali, Alveena, Ameen");
+    });
       if (svg) {
         svg.style.width = "100%";
         svg.style.height = "100%";
@@ -1024,8 +832,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     track.appendChild(A.tile);
     track.appendChild(B.tile);
 
+
     // Animation state
     let tileW = 0;   // how far until repeat
+    let paused = false;
     let x = 0;       // offset in [-tileW, 0)
     let lastTs = 0;
 
@@ -1076,7 +886,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       if (!tileW) return requestAnimationFrame(tick);
 
-      x -= SPEED * dt;
+      if (!paused) {
+        x -= SPEED * dt;
+      }
 
       // Wrap endlessly (no drift, no stopping)
       // Keep x in [-tileW, 0)
@@ -1088,6 +900,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     layout();
+    mount.addEventListener("mouseenter", () => {
+      paused = true;
+    });
+
+    mount.addEventListener("mouseleave", () => {
+      paused = false;
+    });
     window.addEventListener("resize", layout);
     requestAnimationFrame(tick);
   } catch (err) {
@@ -1244,6 +1063,9 @@ function destroyProjectSwiper() {
     projectSwiper = null;
   }
 }
+
+
+
 
 
 
