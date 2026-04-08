@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Studo-G4G - Contact Us</title>
+    <title>Studo-G4G - Project</title>
 
 
     <meta name="description" content="G4G Studio is where big ideas meet thoughtful design. We're a tight-knit team of makers who believe every project—whether it's a website, app, or brand refresh—deserves clarity, creativity, and a human touch. From our first sketch to the final launch, we focus on simple solutions that look great, feel intuitive, and help you grow.">
@@ -54,38 +54,36 @@
         <!-- Section 1 -->
         <div class="section-1">
             <div class="separator"></div>
-            <img src="/public/assets/projects/PEBLZ/project-img-1.png">
+            <img id="project-hero-image" src="" alt="">
             <div class="separator"></div>
         </div>
 
         <!-- Section 2 -->
         <div class="section-2">
-            <div class="title">Creating interfaces <br>user love</div>
+            <div class="title" id="project-page-title"></div>
             <div class="description">
                 <div>SCROLL <i class="fa-light fa-arrow-down-right"></i></div>
-                <div>Lorem ipsum dolor sit amet consectetur. Quis volutpat diam purus vitae dui consequat malesuada feugiat nibh. Id ut adipiscing amet arcu a orci pharetra. Diam habitasse dui mattis gravida id. Nulla magnis nunc aliquam risus vitae aliquet elit tempor. Egestas nisl quis non nibh. Orci non enim massa dignissim felis. Justo semper.</div>
+                <div id="project-intro-text"></div>
             </div>
         </div>
 
         <!-- Section 3 -->
         <div class="section-3">
-            <img src="/public/assets/projects/PEBLZ/project-img-2.png">
+            <img id="project-section-3-image" src="" alt="">
         </div>
 
         <!-- Section 4 -->
         <div class="section-4">
-            <div class="title">
-                Lorem ipsum dolor sit amet consectetur. Ultrices pharetra a aliquet posuere tellus at consectetur sollicitudin turpis.
-            </div>
+            <div class="title" id="project-section-4-text"></div>
         </div>
 
         <!-- Section 5 -->
         <div class="section-5">
             <div class="col-1">
-                <img src="/public/assets/projects/PEBLZ/project-img-3.png">
+                <img id="project-section-5-image" src="" alt="">
             </div>
             <div class="col-2">
-                Lorem ipsum dolor sit amet consectetur. Quis volutpat diam purus vitae dui consequat malesuada feugiat nibh. Id ut adipiscing amet arcu a orci pharetra. Diam habitasse dui mattis gravida id. Nulla magnis nunc aliquam risus vitae aliquet elit tempor. Egestas nisl quis non nibh. Orci non enim massa dignissim felis. Justo semper.
+                <div id="project-section-5-text"></div>
             </div>
         </div>
 
@@ -93,69 +91,51 @@
         <div class="section-6">
             <div class="col-1">
                 <div></div>
-                <div><img src="/public/assets/projects/PEBLZ/project-img-4.png"></div>
-                <div><img src="/public/assets/projects/PEBLZ/project-img-4.png"></div>
+                <div><img id="project-section-6-image-1" src="" alt=""></div>
+                <div><img id="project-section-6-image-2" src="" alt=""></div>
                 <div></div>
             </div>
             <div class="col-2">
-                <img src="/public/assets/projects/PEBLZ/project-img-3.png">
+                <div><img id="project-section-6-image-3" src="" alt=""></div>
             </div>
         </div>
 
         <!-- Section 7 -->
         <div class="section-7">
             <div class="col-1">
-                <img src="/public/assets/projects/PEBLZ/project-img-3.png">
+                <img id="project-section-7-image-1" src="" alt="">
             </div>
             <div class="col-2">
-                <img src="/public/assets/projects/PEBLZ/project-img-3.png">
+                <img id="project-section-7-image-2" src="" alt="Project Image 2">
             </div>
         </div>
 
         <!-- Testimonial -->
-        <div class="Testimonial">
-            <div class="title">Our Clients<br>Say It Best.</div>
+        <div class="testimonial-section">
+            <div class="testimonial-title">
+                Our Clients<br>Say It Best.
+            </div>
 
             <div class="swiper testimonial-swiper">
-                <div class="swiper-wrapper">
-                    
-                    <div class="swiper-slide">
-                        <div class="card">
-                            <h3>Title</h3>
-                            <p>Lorem ipsum dolor sit amet consectetur. Sed malesuada bibendum risus sed urna faucibus.</p>
-                        </div>
-                    </div>
+                <div class="swiper-wrapper" id="testimonial-wrapper"></div>
+            </div>
+        </div>
 
-                    <div class="swiper-slide">
-                        <div class="card">
-                            <h3>Title</h3>
-                            <p>Lorem ipsum dolor sit amet consectetur. Sed malesuada bibendum risus sed urna faucibus.</p>
-                        </div>
-                    </div>
+        <!-- Impact -->
+        <div class="impact-section">
+            <div class="impact-title">Impact</div>
 
-                    <div class="swiper-slide">
-                        <div class="card">
-                            <h3>Title</h3>
-                            <p>Lorem ipsum dolor sit amet consectetur. Sed malesuada bibendum risus sed urna faucibus.</p>
-                        </div>
-                    </div>
-
-                </div>
+            <div class="swiper impact-swiper">
+                <div class="swiper-wrapper" id="impact-wrapper"></div>
             </div>
         </div>
 
     </div>
 
-    <script>
-        const swiper = new Swiper('.testimonial-swiper', {
-            slidesPerView: "auto",
-            spaceBetween: 20,
-        });
-    </script>
-
 </body>
 
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script src="public/js/project-data.js"></script>
 <script src="public/js/main.js"></script>
 
 

@@ -176,31 +176,30 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 // Swiper vertical fullpage with wheel/touch, no arrows/pagination
-const swiper = new Swiper('.my-vertical-swiper', {
-  direction: 'vertical',
-  slidesPerView: 1,
-  speed: 700,
-  allowTouchMove: true,         // enable touch/trackpad
-  simulateTouch: true,
-  threshold: 8,                 // minimum px swipe
-  longSwipesMs: 100,
-  resistanceRatio: 0.85,
+const verticalSwiperEl = document.querySelector('.my-vertical-swiper');
 
-  // Mouse/trackpad scroll
-  mousewheel: {
-    forceToAxis: true,          // vertical wheel → vertical slides
-    releaseOnEdges: true,       // allow native bounce at ends
-    sensitivity: 1.2
-  },
+if (verticalSwiperEl) {
+  new Swiper(verticalSwiperEl, {
+    direction: 'vertical',
+    slidesPerView: 1,
+    speed: 700,
+    allowTouchMove: true,
+    simulateTouch: true,
+    threshold: 8,
+    longSwipesMs: 100,
+    resistanceRatio: 0.85,
 
-  // Disable extras you don’t want
-  keyboard: { enabled: false },
-  pagination: { el: null },
-  navigation: { enabled: false },
+    mousewheel: {
+      forceToAxis: true,
+      releaseOnEdges: true,
+      sensitivity: 1.2
+    },
 
-  // Optional: snap only when user stops (off = normal snap)
-  // freeMode: { enabled: false },
-});
+    keyboard: { enabled: false },
+    pagination: { el: null },
+    navigation: { enabled: false },
+  });
+}
 
 
 // ===================== SECTION TWO: STRIPES MARQUEE + PROJECT CARD (PAUSE ON HOVER) =====================
@@ -1068,7 +1067,162 @@ function destroyProjectSwiper() {
 
 
 
+// Project Page 
+
+const testimonialSwiperEl = document.querySelector('.testimonial-swiper');
+
+if (testimonialSwiperEl) {
+  if (testimonialSwiperEl.swiper) {
+    testimonialSwiperEl.swiper.destroy(true, true);
+  }
+
+  new Swiper(testimonialSwiperEl, {
+    slidesPerView: "auto",
+    spaceBetween: 12,
+    grabCursor: true,
+    simulateTouch: true,
+    allowTouchMove: true,
+    touchRatio: 1,
+    touchAngle: 45,
+    freeMode: true,
+  });
+}
 
 
 
+const impactSwiperEl = document.querySelector('.impact-swiper');
+
+if (impactSwiperEl) {
+  if (impactSwiperEl.swiper) {
+    impactSwiperEl.swiper.destroy(true, true);
+  }
+
+  new Swiper(impactSwiperEl, {
+    slidesPerView: "auto",
+    spaceBetween: 12,
+    grabCursor: true,
+    simulateTouch: true,
+    allowTouchMove: true,
+    touchRatio: 1,
+    touchAngle: 45,
+    freeMode: true,
+  });
+}
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  const params = new URLSearchParams(window.location.search);
+  const projectSlug = params.get("project");
+
+  if (!projectSlug || !PROJECT_PAGE_DATA[projectSlug]) return;
+
+  const project = PROJECT_PAGE_DATA[projectSlug];
+
+  const heroImage = document.getElementById("project-hero-image");
+  const pageTitle = document.getElementById("project-page-title");
+  const introText = document.getElementById("project-intro-text");
+  const section3Image = document.getElementById("project-section-3-image");
+  const section4Text = document.getElementById("project-section-4-text");
+  const section5Image = document.getElementById("project-section-5-image");
+  const section5Text = document.getElementById("project-section-5-text");
+  const section6Image1 = document.getElementById("project-section-6-image-1");
+  const section6Image2 = document.getElementById("project-section-6-image-2");
+  const section6Image3 = document.getElementById("project-section-6-image-3");
+  const section7Image1 = document.getElementById("project-section-7-image-1");
+  const section7Image2 = document.getElementById("project-section-7-image-2");
+  const testimonialSection = document.querySelector(".testimonial-section");
+  const testimonialWrapper = document.getElementById("testimonial-wrapper");
+  const impactSection = document.querySelector(".impact-section");
+  const impactWrapper = document.getElementById("impact-wrapper");
+
+  if (heroImage) {
+    heroImage.src = project.heroImage;
+    heroImage.alt = projectSlug;
+  }
+
+  if (pageTitle) {
+    pageTitle.innerHTML = project.pageTitle;
+  }
+
+  if (introText) {
+    introText.textContent = project.introText;
+  }
+
+  if (section3Image) {
+    section3Image.src = project.section3Image;
+    section3Image.alt = projectSlug;
+  }
+
+  if (section4Text) {
+    section4Text.textContent = project.section4Text;
+  }
+
+  if (section5Image) {
+    section5Image.src = project.section5Image;
+    section5Image.alt = projectSlug;
+  }
+
+  if (section5Text) {
+    section5Text.textContent = project.section5Text;
+  }
+
+  if (section6Image1) {
+    section6Image1.src = project.section6Image1;
+    section6Image1.alt = projectSlug;
+  }
+
+  if (section6Image2) {
+    section6Image2.src = project.section6Image2;
+    section6Image2.alt = projectSlug;
+  }
+
+  if (section6Image3) {
+    section6Image3.src = project.section6Image3;
+    section6Image3.alt = projectSlug;
+  }
+
+  if (section7Image1) {
+    section7Image1.src = project.section7Image1;
+    section7Image1.alt = projectSlug;
+  }
+
+  if (section7Image2) {
+    section7Image2.src = project.section7Image2;
+    section7Image2.alt = projectSlug;
+  }
+
+  if (testimonialSection && testimonialWrapper) {
+    const testimonials = project.testimonials || [];
+
+    if (!testimonials.length) {
+      testimonialSection.style.display = "none";
+    } else {
+      testimonialWrapper.innerHTML = testimonials.map(item => `
+        <div class="swiper-slide">
+          <div class="testimonial-card">
+            <h3>${item.title}</h3>
+            <p>${item.text}</p>
+          </div>
+        </div>
+      `).join("");
+    }
+  }
+
+  if (impactSection && impactWrapper) {
+    const impacts = project.impacts || [];
+
+    if (!impacts.length) {
+      impactSection.style.display = "none";
+    } else {
+      impactWrapper.innerHTML = impacts.map(item => `
+        <div class="swiper-slide">
+          <div class="impact-card">
+            <h3>${item.title}</h3>
+            <p>${item.text}</p>
+          </div>
+        </div>
+      `).join("");
+    }
+  }
+});
 
