@@ -17,4 +17,5 @@ jobs:
           key: ${{ secrets.DO_SSH_KEY }}
           script: |
             cd /var/www/mysite
+            git remote set-url origin https://${{ secrets.GH_TOKEN }}@github.com/geeksforgrowth/studiog4g.git
             git pull origin master
