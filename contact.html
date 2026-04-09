@@ -66,16 +66,18 @@
     <div class="contact-form">
 
         <div class="form">
+          <form class="form" action="/send-mail.php" method="POST">
             <button class="submit-btn linked">
                 <i class="fa-light fa-arrow-up-right"></i>
             </button>
             <div class="input-row">
-                <input class="form-input" type="text" name="fullname" placeholder="FULLNAME">
-                <input class="form-input" type="email" name="email" placeholder="EMAIL">
-                <input class="form-input" type="phone" name="phone" placeholder="PHONE">
+                <input class="form-input" type="text" required  name="name" placeholder="FULLNAME">
+                <input class="form-input" type="email" required name="email" placeholder="EMAIL">
+                <input class="form-input" type="tel" name="phone" required  placeholder="PHONE">
             </div>
             <textarea class="form-textarea" name="message" placeholder="MESSAGE"></textarea>
-        </div>
+          </form>  
+      </div>
 
         <div class="external-links">
             <a class="linked" class="email-cta">CONTACT@STUDIO-G4G.COM</a>
