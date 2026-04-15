@@ -522,6 +522,9 @@ a{
 .contact-form .form .input-row input:focus{
     outline: none;
 }
+.textarea-wrap{
+    margin-bottom: 100px;
+}
 .contact-form .form .form-textarea{
     width: 100%;
     background: transparent;
@@ -535,7 +538,7 @@ a{
 
     padding: 10px 0 25px 0;
     margin: 0;
-    margin-bottom: 100px;
+    /* margin-bottom: 100px; */
 
     line-height: 3.5rem;
     min-height: 3rem;
@@ -572,6 +575,30 @@ a{
     font-size: 1.4rem;
     color: var(--tc-1);
     transition: .3s;
+}
+
+.field-group{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.field-error{
+    font-size: .95rem;
+    color: #ffd7d7;
+    margin-top: 8px;
+    min-height: 20px;
+    line-height: 1.2;
+}
+
+.form-input.input-error,
+.form-textarea.input-error{
+    border-bottom: 1px solid #ffb3b3 !important;
+}
+
+.form-input.input-valid,
+.form-textarea.input-valid{
+    border-bottom: 1px solid #ffffff !important;
 }
 /* Contact Page End */
 
@@ -1016,8 +1043,11 @@ a{
         line-height: 1.5rem;
         min-height: 1.5rem;
         padding: 0px;
+    }
+    .textarea-wrap{
         margin-bottom: 120px;
     }
+    
     .contact-form .external-links{
         flex-direction: column;
         justify-content: center;
