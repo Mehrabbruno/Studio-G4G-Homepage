@@ -179,7 +179,7 @@ document.addEventListener("DOMContentLoaded", () => {
 const verticalSwiperEl = document.querySelector('.my-vertical-swiper');
 
 if (verticalSwiperEl) {
-  new Swiper(verticalSwiperEl, {
+  const verticalSwiper = new Swiper(verticalSwiperEl, {
     direction: 'vertical',
     slidesPerView: 1,
     speed: 700,
@@ -199,6 +199,14 @@ if (verticalSwiperEl) {
     pagination: { el: null },
     navigation: { enabled: false },
   });
+
+  const aboutBtn = document.querySelector('.above-the-fold .about');
+  if (aboutBtn) {
+    aboutBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      verticalSwiper.slideNext();
+    });
+  }
 }
 
 
