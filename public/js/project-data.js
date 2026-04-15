@@ -1,52 +1,54 @@
 const PROJECT_PAGE_DATA = {
     peblz: {
-    pageTitle: "Building a brand system designed for consistency <br>and scale",
-    introText: "We worked on shaping a more polished and intentional product experience through interface design, visual refinement, and clearer content structure. By improving how the product was presented and how users moved through it, we helped create an experience that feels more intuitive, more credible, and better aligned with growth.",
-    heroImage: "public/assets/projects/PEBLZ/project-img-1.png",
-    section3Image: "public/assets/projects/PEBLZ/project-img-2.png",
-    section4Text: "We focused on simplifying the experience, strengthening visual consistency, and making key interactions easier to follow — helping the product feel more usable, more cohesive, and more ready to scale.",
-    section5Image: "public/assets/projects/PEBLZ/project-img-3.png",
-    section5Text: "Our work centered on refining the interface and improving the overall flow of the experience. We introduced clearer layouts, more consistent visual patterns, and stronger hierarchy across key touchpoints. This helped reduce friction, made the product easier to understand, and created a more confident experience for users.",
-    section6Image1: "public/assets/projects/PEBLZ/project-img-4.png",
-    section6Image2: "public/assets/projects/PEBLZ/project-img-4.png",
-    section6Image3: "public/assets/projects/PEBLZ/project-img-6.png",
-    section7Image1: "public/assets/projects/PEBLZ/project-img-7.png",
-    section7Image2: "public/assets/projects/PEBLZ/project-img-8.png",
-    testimonials: [
-        {
-        title: "Title 1",
-        text: "Testimonial text 1"
-        },
-        {
-        title: "Title 2",
-        text: "Testimonial text 2"
-        }
-    ],
-    impacts: [
-        {
-            title: "Clearer user journeys",
-            text: "We refined the structure and flow of the experience to make key interactions easier to follow and understand."
-        },
-        {
-            title: "Stronger visual consistency",
-            text: "A more unified design language helped the product feel more polished, cohesive, and dependable."
-        },
-        {
-            title: "Stronger visual consistency",
-            text: "A more unified design language helped the product feel more polished, cohesive, and dependable."
-        },
-        {
-            title: "Stronger visual consistency",
-            text: "A more unified design language helped the product feel more polished, cohesive, and dependable."
-        },
-        {
-            title: "Stronger visual consistency",
-            text: "A more unified design language helped the product feel more polished, cohesive, and dependable."
-        }
-    ],
+        projectName: "PEBLZ",
+        pageTitle: "Building a brand system designed for consistency <br>and scale",
+        introText: "We worked on shaping a more polished and intentional product experience through interface design, visual refinement, and clearer content structure. By improving how the product was presented and how users moved through it, we helped create an experience that feels more intuitive, more credible, and better aligned with growth.",
+        heroImage: "public/assets/projects/PEBLZ/project-img-1.png",
+        section3Image: "public/assets/projects/PEBLZ/project-img-2.png",
+        section4Text: "We focused on simplifying the experience, strengthening visual consistency, and making key interactions easier to follow — helping the product feel more usable, more cohesive, and more ready to scale.",
+        section5Image: "public/assets/projects/PEBLZ/project-img-3.png",
+        section5Text: "Our work centered on refining the interface and improving the overall flow of the experience. We introduced clearer layouts, more consistent visual patterns, and stronger hierarchy across key touchpoints. This helped reduce friction, made the product easier to understand, and created a more confident experience for users.",
+        section6Image1: "public/assets/projects/PEBLZ/project-img-4.png",
+        section6Image2: "public/assets/projects/PEBLZ/project-img-4.png",
+        section6Image3: "public/assets/projects/PEBLZ/project-img-6.png",
+        section7Image1: "public/assets/projects/PEBLZ/project-img-7.png",
+        section7Image2: "public/assets/projects/PEBLZ/project-img-8.png",
+        testimonials: [
+            {
+            title: "Title 1",
+            text: "Testimonial text 1"
+            },
+            {
+            title: "Title 2",
+            text: "Testimonial text 2"
+            }
+        ],
+        impacts: [
+            {
+                title: "Clearer user journeys",
+                text: "We refined the structure and flow of the experience to make key interactions easier to follow and understand."
+            },
+            {
+                title: "Stronger visual consistency",
+                text: "A more unified design language helped the product feel more polished, cohesive, and dependable."
+            },
+            {
+                title: "Stronger visual consistency",
+                text: "A more unified design language helped the product feel more polished, cohesive, and dependable."
+            },
+            {
+                title: "Stronger visual consistency",
+                text: "A more unified design language helped the product feel more polished, cohesive, and dependable."
+            },
+            {
+                title: "Stronger visual consistency",
+                text: "A more unified design language helped the product feel more polished, cohesive, and dependable."
+            }
+        ],
     },
 
     acl: {
+        projectName: "ACL",
         pageTitle: "Turning complex information into a clearer, more structured <br>digital experience",
         introText: "We worked on shaping a more accessible and visually organized experience for ACL through presentation design, website design, custom iconography, and supporting digital assets. The goal was to make information easier to absorb while giving the overall brand a more polished and consistent presence.",
         heroImage: "public/assets/projects/ACL/project-img-1.png",
@@ -82,6 +84,7 @@ const PROJECT_PAGE_DATA = {
     },
 
     cheeki: {
+        projectName: "CHEEKI",
         pageTitle: "Building a playful product identity and interface system <br>designed to feel clear and engaging",
         introText: "We worked on shaping Cheeki through brand identity, mascot design, mobile product design, and responsive digital experiences. The goal was to create a system that felt distinctive and full of personality while still making the platform easy to use across different user journeys.",
         heroImage: "public/assets/projects/CHEEKI/project-img-1.png",
@@ -117,6 +120,7 @@ const PROJECT_PAGE_DATA = {
     },
 
     crdao: {
+        projectName: "CREATOR DAO",
         pageTitle: "Creating a community-led identity system built for visibility, <br>consistency, and growth",
         introText: "We worked on building a scalable brand identity for Creator Dao that could support community presence across digital, event, and social touchpoints. The focus was on creating a system that felt bold, flexible, and recognizable while giving the brand a stronger foundation for growth.",
         heroImage: "public/assets/projects/CRDAO/project-img-1.png",
@@ -152,6 +156,7 @@ const PROJECT_PAGE_DATA = {
     },
 
     datacrest: {
+        projectName: "DATACREST",
         pageTitle: "Creating a sharper identity and digital presence built for clarity <br>and credibility",
         introText: "We worked on shaping a stronger and more cohesive brand presence for DataCrest through identity design, digital visuals, and interface thinking. The goal was to create a system that felt more professional, more recognizable, and better suited for communicating value across platforms.",
         heroImage: "public/assets/projects/DATACREST/project-img-1.png",
@@ -187,6 +192,7 @@ const PROJECT_PAGE_DATA = {
     },
 
     "logo-folio": {
+        projectName: "LOGO FOLIO",
         pageTitle: "Crafting identity marks that feel distinctive, strategic, <br>and built to last",
         introText: "This logo collection brings together a range of identity projects created for startups and growing brands across different industries. The focus was on building marks that feel simple, memorable, and aligned with the character of each business while giving every brand a strong visual starting point.",
         heroImage: "public/assets/projects/LOGO_FOLIO_1/project-img-1.png",
@@ -222,6 +228,7 @@ const PROJECT_PAGE_DATA = {
     },
 
     maude: {
+        projectName: "MAUDE",
         pageTitle: "Designing an editorial system that feels refined, structured, <br>and easy to move through",
         introText: "We worked on creating a more considered editorial experience for Maude through layout design, visual structure, and content presentation. The focus was on making the material feel elevated, readable, and cohesive while giving the overall system a stronger sense of rhythm and consistency.",
         heroImage: "public/assets/projects/MAUDE/project-img-1.png",

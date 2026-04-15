@@ -1096,8 +1096,6 @@ if (testimonialSwiperEl) {
   });
 }
 
-
-
 const impactSwiperEl = document.querySelector('.impact-swiper');
 
 if (impactSwiperEl) {
@@ -1117,7 +1115,6 @@ if (impactSwiperEl) {
   });
 }
 
-
 document.addEventListener("DOMContentLoaded", () => {
   const params = new URLSearchParams(window.location.search);
   const projectSlug = params.get("project");
@@ -1125,7 +1122,8 @@ document.addEventListener("DOMContentLoaded", () => {
   if (!projectSlug || !PROJECT_PAGE_DATA[projectSlug]) return;
 
   const project = PROJECT_PAGE_DATA[projectSlug];
-
+  const projectName = project.projectName.replace(/<br\s*\/?>/gi, " ").replace(/<[^>]*>/g, "").trim();
+  document.title = `Studo-G4G - ${projectName}`;
   const heroImage = document.getElementById("project-hero-image");
   const pageTitle = document.getElementById("project-page-title");
   const introText = document.getElementById("project-intro-text");
