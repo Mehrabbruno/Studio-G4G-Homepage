@@ -370,6 +370,7 @@ if (verticalSwiperEl) {
     function openProjectModalByIndex(index) {
       const project = PROJECTS[index];
       if (!project) return;
+      currentIndex = index;
 
       modalTitle.textContent = project.title || "Project";
       modal.style.display = "block";
@@ -413,8 +414,23 @@ if (verticalSwiperEl) {
     });
 
     nextBtn?.addEventListener("click", () => {
-      const next = (currentIndex + 1) % PROJECTS.length;
-      openProjectModalByIndex(next);
+      const slugMap = {
+        "PEBLZ": "peblz",
+        "ACL": "acl",
+        "Cheeki": "cheeki",
+        "Creator Dao": "crdao",
+        "DataCrest": "datacrest",
+        "LOGO_FOLIO_1": "logo-folio",
+        "MAUDE": "maude",
+      };
+
+      const project = PROJECTS[currentIndex];
+      if (!project) return;
+
+      const slug = slugMap[project.title];
+      if (!slug) return;
+
+      window.location.href = `project-page.html?project=${slug}`;
     });
 
     // ✅ Event delegation: works for cloned cards too
