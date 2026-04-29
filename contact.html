@@ -50,33 +50,85 @@
     
     <div class="contact-form">
 
-        <div class="form">
-          <form class="form" action="/send-mail.php" method="POST">
+        <form class="form" action="/send-mail.php" method="POST">
             <button class="submit-btn linked">
                 <i class="fa-light fa-arrow-up-right"></i>
             </button>
 
             <div class="input-row">
-                <input class="form-input" type="text" required  name="name" placeholder="FULLNAME">
-                <input class="form-input" type="email" required name="email" placeholder="EMAIL">
-                <input class="form-input" type="tel" name="phone" required  placeholder="PHONE">
+                <div class="input-wrap">
+                    <input class="form-input" type="text" required  name="name" placeholder="FULLNAME">
+                    <div class="field-error fullname-error"></div>
+                </div>
+                <div class="input-wrap">
+                    <input class="form-input" type="email" required name="email" placeholder="EMAIL">
+                    <div class="field-error email-error"></div>
+                </div>
+                <div class="input-wrap">
+                    <input class="form-input" type="tel" name="phone" required  placeholder="PHONE">
+                    <div class="field-error phone-error"></div>
+                </div>
             </div>
-            <textarea class="form-textarea" name="message" placeholder="MESSAGE"></textarea>
-          </form>  
-      </div>
+            
+            <div class="textarea-wrap" style="width: 100%;">
+                <textarea class="form-textarea" name="message" placeholder="MESSAGE"></textarea>
+                <div class="field-error message-error"></div>
+            </div>
+        </form>    
 
         <div class="external-links">
             <a class="linked" class="email-cta" href="contact.html">CONTACT@STUDIO-G4G.COM</a>
             <div class="socials">
                 <a class="linked" href="https://dribbble.com/G4GDesign"><i class="fa-brands fa-dribbble"></i></a>
-                <!-- <a class="linked" href="#"><i class="fa-brands fa-x-twitter"></i></a> -->
                 <a class="linked" href="https://www.instagram.com/studio.g4g/"><i class="fa-brands fa-instagram"></i></a>
                 <a class="linked" href="https://www.pinterest.com/G4GStudio/"><i class="fa-brands fa-pinterest-p"></i></a>
                 <a class="linked" href="https://www.behance.net/geeksforgrowth"><i class="fa-brands fa-behance"></i></a>
-                <!-- <a class="linked" href="#"><i class="fa-brands fa-linkedin-in"></i></a> -->
             </div>
         </div>
     </div>
+
+
+    <!-- <div class="contact-form">
+
+        <div class="form">
+            <button class="submit-btn linked">
+                <i class="fa-light fa-arrow-up-right"></i>
+            </button>
+
+            <div class="input-row">
+                <div class="input-wrap">
+                    <input class="form-input" type="text" required  name="name" placeholder="FULLNAME">
+                    <input class="form-input" type="text" name="fullname" placeholder="FULLNAME">
+                    <div class="field-error fullname-error"></div>
+                </div>
+
+                <div class="input-wrap">
+                    <input class="form-input" type="email" name="email" placeholder="EMAIL">
+                    <div class="field-error email-error"></div>
+                </div>
+
+                <div class="input-wrap">
+                    <input class="form-input" type="tel" name="phone" placeholder="PHONE">
+                    <div class="field-error phone-error"></div>
+                </div>
+            </div>
+
+            <div class="textarea-wrap" style="width: 100%;">
+                <textarea class="form-textarea" name="message" placeholder="MESSAGE"></textarea>
+                <div class="field-error message-error"></div>
+            </div>
+        </div>
+
+        <div class="external-links">
+            <a class="linked" class="email-cta" href="contact.html">CONTACT@STUDIO-G4G.COM</a>
+            <div class="socials">
+                <a class="linked" href="https://dribbble.com/G4GDesign"><i class="fa-brands fa-dribbble"></i></a>
+                <a class="linked" href="https://www.instagram.com/studio.g4g/"><i class="fa-brands fa-instagram"></i></a>
+                <a class="linked" href="https://www.pinterest.com/G4GStudio/"><i class="fa-brands fa-pinterest-p"></i></a>
+                <a class="linked" href="https://www.behance.net/geeksforgrowth"><i class="fa-brands fa-behance"></i></a>
+            </div>
+        </div>
+    </div> -->
 
     
 
